@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BBG Ball Flight Creator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    body { background: #0a0a0a; color: white; font-family: system-ui; }
+    .accent-red { color: #C00000; }
+    .slider-thumb { accent-color: #C00000; }
+    canvas { background: #111827; border-radius: 12px; }
+    .strike-btn {
+      transition: all 0.2s;
+    }
+    .strike-btn.active {
+      background-color: #450a0a !important;
+      border: 2px solid #C00000;
+      color: white;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="max-w-5xl mx-auto p-6">
+    <h1 class="text-5xl font-bold text-center mb-2 accent-red">BBG Ball Flight Creator</h1>
+    <p class="text-center text-zinc-400 mb-10">TrackMan-Accurate Ball Flight Simulator</p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Controls -->
+      <div class="lg:col-span-5 bg-zinc-900 rounded-3xl p-8">
+        <h2 class="text-2xl font-semibold mb-8 flex items-center gap-3">
+          <i class="fa-solid fa-sliders"></i> Controls
+        </h2>
+
+        <!-- Pro Preset -->
+        <div class="mb-8">
+          <label class="block text-sm mb-2">PGA / LPGA Pro Preset</label>
+          <select id="proPreset" onchange="loadProPreset()" 
+                  class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-3 text-white">
+            <option value="">— Select Pro —</option>
+            <option value="mcilroy">Rory McIlroy</option>
+            <option value="dechambeau">Bryson DeChambeau</option>
+            <option value="rahm">Jon Rahm</option>
+            <option value="scheffler">Scottie Scheffler</option>
+            <option value="finau">Tony Finau</option>
+            <option value="burns">Sam Burns</option>
+            <option value="morikawa">Collin Morikawa</option>
+            <option value="hovland">Viktor Hovland</option>
+            <option value="koepka">Brooks Koepka</option>
+            <option value="johnson">Dustin Johnson</option>
+            <option value="thomas">Justin Thomas</option>
+            <option value="cantlay">Patrick Cantlay</option>
+            <option value="korda">Nelly Korda</option>
+            <option value="henderson">Brooke Henderson</option>
+            <option value="thitikul">Atthaya Thitikul</option>
+          </select>
+        </div>
+
+        <div class="space-y-8">
+          <div>
+            <label class="flex justify-between text-sm mb-2"><span>Swing Speed</span><span id="speedVal" class="accent-red font-mono">98</span> mph</label>
+            <input type="range" id="swingSpeed" min="70" max="125" value="98" class="w-full slider-thumb">
+          </div>
+
+          <div>
+            <label class="flex justify-between text-sm mb-2"><span>Angle of Attack</span><span id="attackVal" class="accent-red font-mono">-1.2</span>°</label>
+            <input type="range" id="attackAngle" min="-8" max="8" value="-1.2" step="0.1" class="w-full slider-thumb">
+          </div>
+
+          <div>
+            <label class="flex justify-between text-sm mb-2"><span>Club Path</span><span id="pathVal" class="accent-red font-mono">+2.5</span>°</label>
+            <input type="range" id="clubPath" min="-8" max="8" value="2.5" step="0.1" class="w-full slider-thumb">
+          </div>
+
+          <div>
+            <label class="flex justify-between text-sm mb-2"><span>Face Angle</span><span id="faceVal" class="accent-red font-mono">-1.0</span>°</label>
+            <input type="range" id="faceAngle" min="-8" max="8" value="-1.0" step="0.1" class="w-full slider-thumb">
+          </div>
+
+          <div>
+            <label class="block text-sm mb-3">Strike Location on Face</label>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs bg-zinc-950 p-3 rounded-2xl" id="strikeGrid">
+              <button onclick="setStrike(0,2)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="0" data-x="2">High Toe</button>
+              <button onclick="setStrike(0,1)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="0" data-x="1">High Mid</button>
+              <button onclick="setStrike(0,0)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="0" data-x="0">High Heel</button>
+              
+              <button onclick="setStrike(1,2)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="1" data-x="2">Mid Toe</button>
+              <button onclick="setStrike(1,1)" class="strike-btn bg-zinc-700 py-3 rounded-xl active" id="centerBtn" data-y="1" data-x="1">Center</button>
+              <button onclick="setStrike(1,0)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="1" data-x="0">Mid Heel</button>
+              
+              <button onclick="setStrike(2,2)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="2" data-x="2">Low Toe</button>
+              <button onclick="setStrike(2,1)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="2" data-x="1">Low Mid</button>
+              <button onclick="setStrike(2,0)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="2" data-x="0">Low Heel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flight Visualizer -->
+      <div class="lg:col-span-7">
+        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-compass"></i> Ball Flight Path (Top Down View)
+        </h3>
+        <canvas id="flightCanvas" width="700" height="620" class="w-full shadow-2xl"></canvas>
+        
+        <div class="bg-zinc-900 rounded-2xl p-6 mt-6 grid grid-cols-4 gap-4 text-center">
+          <div><p class="text-zinc-400 text-sm">Carry</p><p id="carry" class="text-4xl font-bold accent-red">256</p><p class="text-xs text-zinc-500">yards</p></div>
+          <div><p class="text-zinc-400 text-sm">Total</p><p id="total" class="text-4xl font-bold">279</p><p class="text-xs text-zinc-500">yards</p></div>
+          <div><p class="text-zinc-400 text-sm">Apex</p><p id="apex" class="text-4xl font-bold">98</p><p class="text-xs text-zinc-500">ft</p></div>
+          <div><p class="text-zinc-400 text-sm">Curve</p><p id="curve" class="text-4xl font-bold text-yellow-400">+22</p><p class="text-xs text-zinc-500">yards</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('flightCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let strikeX = 1;
+    let strikeY = 1;
+
+    function updateStrikeHighlight() {
+      const buttons = document.querySelectorAll('#strikeGrid button');
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      buttons.forEach(btn => {
+        if (parseInt(btn.dataset.x) === strikeX && parseInt(btn.dataset.y) === strikeY) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    function setStrike(y, x) {
+      strikeX = x;
+      strikeY = y;
+      updateStrikeHighlight();
+      updateFlight();
+    }
+
+    const proData = {
+      "mcilroy": { speed: 120, attack: -1.8, path: 1.2, face: -0.5 },
+      "dechambeau": { speed: 125, attack: -2.5, path: -3.5, face: -4.0 },
+      "rahm": { speed: 118, attack: -2.2, path: 2.8, face: 1.5 },
+      "scheffler": { speed: 117, attack: -1.5, path: 0.8, face: 0.2 },
+      "finau": { speed: 119, attack: -2.0, path: 3.5, face: 2.8 },
+      "burns": { speed: 115, attack: -1.0, path: 1.5, face: 0.8 },
+      "morikawa": { speed: 113, attack: -1.8, path: -1.2, face: -2.0 },
+      "hovland": { speed: 116, attack: -2.1, path: 2.2, face: 1.8 },
+      "koepka": { speed: 118, attack: -2.4, path: 0.5, face: -0.8 },
+      "johnson": { speed: 119, attack: -1.6, path: 2.0, face: 1.2 },
+      "thomas": { speed: 117, attack: -1.9, path: -2.5, face: -3.0 },
+      "cantlay": { speed: 114, attack: -1.4, path: 1.0, face: 0.5 },
+      "korda": { speed: 108, attack: -1.2, path: 2.5, face: 1.8 },
+      "henderson": { speed: 105, attack: -1.5, path: -2.0, face: -2.5 },
+      "thitikul": { speed: 107, attack: -1.3, path: 1.8, face: 1.2 }
+    };
+
+    function loadProPreset() {
+      const selected = document.getElementById('proPreset').value;
+      if (!selected) return;
+
+      const data = proData[selected];
+      document.getElementById('swingSpeed').value = data.speed;
+      document.getElementById('attackAngle').value = data.attack;
+      document.getElementById('clubPath').value = data.path;
+      document.getElementById('faceAngle').value = data.face;
+      
+      strikeX = 1;
+      strikeY = 1;
+      updateStrikeHighlight();
+      updateFlight();
+    }
+
+    function getValues() {
+      return {
+        speed: parseFloat(document.getElementById('swingSpeed').value),
+        attack: parseFloat(document.getElementById('attackAngle').value),
+        path: parseFloat(document.getElementById('clubPath').value),
+        face: parseFloat(document.getElementById('faceAngle').value)
+      };
+    }
+
+    function updateFlight() {
+      const v = getValues();
+      
+      let smash = 1.45;
+      const strikePenalty = Math.abs(strikeX - 1) * 0.085 + Math.abs(strikeY - 1) * 0.055;
+      smash = Math.max(1.32, smash - strikePenalty);
+
+      let ballSpeed = Math.round(v.speed * smash);
+      let launchAngle = Math.max(8, 12 + v.attack * 0.8);
+      let spinRate = Math.round(2800 - v.attack * 80);
+
+      const faceToPath = v.face - v.path;
+      let spinAxis = faceToPath * 2.8;
+      spinAxis += (strikeX - 1) * 5.5;
+      spinAxis += (strikeY - 1) * -2.5;
+
+      const ftpMagnitude = Math.abs(faceToPath);
+      const ftpDistanceLoss = Math.min(35, ftpMagnitude * 4.2);
+
+      let carry = Math.round(ballSpeed * 1.72 + launchAngle * 2.8 - spinRate / 130);
+      carry = Math.round(carry * (1 - strikePenalty * 0.6));
+      carry = Math.max(120, carry - ftpDistanceLoss);
+
+      const total = Math.round(carry * 1.09);
+      const apex = Math.round(launchAngle * 7 + v.speed / 7);
+      const curve = Math.round(spinAxis * 1.9);
+
+      document.getElementById('speedVal').textContent = Math.round(v.speed);
+      document.getElementById('attackVal').textContent = v.attack.toFixed(1);
+      document.getElementById('pathVal').textContent = v.path.toFixed(1);
+      document.getElementById('faceVal').textContent = v.face.toFixed(1);
+      
+      document.getElementById('carry').textContent = carry;
+      document.getElementById('total').textContent = total;
+      document.getElementById('apex').textContent = apex;
+      
+      const curveEl = document.getElementById('curve');
+      curveEl.textContent = curve >= 0 ? `+${curve}` : curve;
+      curveEl.className = curve >= 0 ? 
+        "text-4xl font-bold text-yellow-400" : "text-4xl font-bold text-blue-400";
+
+      drawFlightPath(carry, curve);
+    }
+
+    function drawFlightPath(carry, curve) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const startX = canvas.width / 2;
+      const startY = canvas.height - 80;
+      const maxDistance = Math.max(carry * 1.12, 320);
+
+      // Distance hashmarks
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 2;
+      for (let dist = 25; dist <= Math.floor(maxDistance / 25) * 25; dist += 25) {
+        const y = startY - (dist / maxDistance) * (canvas.height - 160);
+        ctx.beginPath();
+        ctx.moveTo(startX - 45, y);
+        ctx.lineTo(startX + 45, y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#888';
+        ctx.font = '12px monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(dist + " yds", startX - 55, y + 4);
+      }
+
+      // Target line
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(startX, 60);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Ball flight path
+      ctx.strokeStyle = '#C00000';
+      ctx.lineWidth = 5;
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#C00000';
+
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+
+      for (let d = 0; d <= carry; d += 8) {
+        const progress = d / carry;
+        const y = startY - (d / maxDistance) * (canvas.height - 160);
+        const bend = curve * Math.pow(progress, 1.65) * 0.95;
+        ctx.lineTo(startX + bend, y);
+      }
+      ctx.stroke();
+
+      const finalBend = curve * 0.95;
+      const finalY = startY - (carry / maxDistance) * (canvas.height - 160);
+      ctx.fillStyle = '#f1f5f9';
+      ctx.beginPath();
+      ctx.arc(startX + finalBend, finalY, 9, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    window.onload = () => {
+      updateStrikeHighlight();
+      updateFlight();
+    };
+
+    document.querySelectorAll('input[type="range"]').forEach(slider => {
+      slider.addEventListener('input', updateFlight);
+    });
+  </script>
+</body>
+</html>
+

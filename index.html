@@ -38,21 +38,22 @@
           <label class="block text-sm mb-2">PGA / LPGA Pro Preset</label>
           <select id="proPreset" onchange="loadProPreset()" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-3 text-white">
             <option value="">— Select Pro —</option>
-            <option value="mcilroy">Rory McIlroy</option>
-            <option value="dechambeau">Bryson DeChambeau</option>
-            <option value="rahm">Jon Rahm</option>
-            <option value="scheffler">Scottie Scheffler</option>
+            <option value="mcilroy">Rory McIlroy (High Draw)</option>
+            <option value="dechambeau">Bryson DeChambeau (Bomb Draw)</option>
+            <option value="rahm">Jon Rahm (Fade)</option>
+            <option value="scheffler">Scottie Scheffler (Fade)</option>
+            <option value="thomas">Justin Thomas (Power Draw)</option>
+            <option value="tiger2019">Tiger Woods (2019 - Controlled Fade)</option>
             <option value="finau">Tony Finau</option>
-            <option value="burns">Sam Burns</option>
-            <option value="morikawa">Collin Morikawa</option>
-            <option value="hovland">Viktor Hovland</option>
-            <option value="koepka">Brooks Koepka</option>
-            <option value="johnson">Dustin Johnson</option>
-            <option value="thomas">Justin Thomas</option>
-            <option value="cantlay">Patrick Cantlay</option>
-            <option value="korda">Nelly Korda</option>
-            <option value="henderson">Brooke Henderson</option>
-            <option value="thitikul">Atthaya Thitikul</option>
+            <option value="burns">Sam Burns (Draw)</option>
+            <option value="morikawa">Collin Morikawa (Fade)</option>
+            <option value="hovland">Viktor Hovland (Fade)</option>
+            <option value="koepka">Brooks Koepka (Fade)</option>
+            <option value="johnson">Dustin Johnson (Fade)</option>
+            <option value="cantlay">Patrick Cantlay (Draw)</option>
+            <option value="korda">Nelly Korda (Straight)</option>
+            <option value="henderson">Brooke Henderson (Fade)</option>
+            <option value="thitikul">Atthaya Thitikul (Draw)</option>
           </select>
         </div>
 
@@ -146,28 +147,29 @@
     }
 
     const proData = {
-      "mcilroy": { speed: 120, attack: -1.8, path: 1.2, face: -0.5 },
-      "dechambeau": { speed: 125, attack: -2.5, path: -3.5, face: -4.0 },
-      "rahm": { speed: 118, attack: -2.2, path: 2.8, face: 1.5 },
-      "scheffler": { speed: 117, attack: -1.5, path: 0.8, face: 0.2 },
-      "finau": { speed: 119, attack: -2.0, path: 3.5, face: 2.8 },
-      "burns": { speed: 115, attack: -1.0, path: 1.5, face: 0.8 },
-      "morikawa": { speed: 113, attack: -1.8, path: -1.2, face: -2.0 },
-      "hovland": { speed: 116, attack: -2.1, path: 2.2, face: 1.8 },
-      "koepka": { speed: 118, attack: -2.4, path: 0.5, face: -0.8 },
-      "johnson": { speed: 119, attack: -1.6, path: 2.0, face: 1.2 },
-      "thomas": { speed: 117, attack: -1.9, path: -2.5, face: -3.0 },
-      "cantlay": { speed: 114, attack: -1.4, path: 1.0, face: 0.5 },
-      "korda": { speed: 108, attack: -1.2, path: 2.5, face: 1.8 },
-      "henderson": { speed: 105, attack: -1.5, path: -2.0, face: -2.5 },
-      "thitikul": { speed: 107, attack: -1.3, path: 1.8, face: 1.2 }
+      "mcilroy": { speed: 121, attack: 4.0, path: 1.5, face: -1.0 },
+      "dechambeau": { speed: 135, attack: 5.0, path: 2.0, face: -0.5 },
+      "rahm": { speed: 118, attack: -1.0, path: -2.2, face: 0.8 },
+      "scheffler": { speed: 120, attack: 0.8, path: -1.5, face: 0.5 },
+      "thomas": { speed: 119, attack: 2.8, path: 2.0, face: -1.2 },           // Justin Thomas
+      "tiger2019": { speed: 119, attack: 0.0, path: -2.8, face: 0.6 },       // Tiger Woods 2019
+      "finau": { speed: 119, attack: -1.5, path: 3.0, face: 2.0 },
+      "burns": { speed: 122, attack: 1.8, path: 2.0, face: -1.2 },
+      "morikawa": { speed: 114, attack: 0.0, path: -2.5, face: 0.0 },
+      "hovland": { speed: 117, attack: 0.0, path: -2.0, face: 0.3 },
+      "koepka": { speed: 121, attack: 0.8, path: -2.0, face: 0.4 },
+      "johnson": { speed: 121, attack: 1.2, path: -3.0, face: 0.6 },
+      "cantlay": { speed: 115, attack: 1.5, path: 1.0, face: -0.3 },
+      "korda": { speed: 104, attack: -0.3, path: -1.0, face: 0.0 },
+      "henderson": { speed: 106, attack: 2.2, path: -2.0, face: 0.2 },
+      "thitikul": { speed: 102, attack: 2.8, path: 1.5, face: -1.0 }
     };
 
     const amateurData = {
       "clubchamp": { speed: 100, attack: -1.5, path: 0.5, face: 0.0, strikeX: 1, strikeY: 1 },
-      "slicer":     { speed: 100, attack: -1.2, path: -5.0, face: 5.0,  strikeX: 1, strikeY: 1 },
-      "hooker":     { speed: 100, attack: -1.8, path: 5.0,  face: -5.0, strikeX: 1, strikeY: 1 },
-      "duckhook":   { speed: 100, attack: -2.2, path: 8.0,  face: -8.0, strikeX: 0, strikeY: 2 }   // Low Heel
+      "slicer":     { speed: 100, attack: -1.2, path: -5.0, face: 5.0, strikeX: 1, strikeY: 1 },
+      "hooker":     { speed: 100, attack: -1.8, path: 5.0, face: -5.0, strikeX: 1, strikeY: 1 },
+      "duckhook":   { speed: 100, attack: -2.2, path: 8.0, face: -8.0, strikeX: 0, strikeY: 2 }
     };
 
     function loadProPreset() {
@@ -187,15 +189,12 @@
       const selected = document.getElementById('amateurPreset').value;
       if (!selected) return;
       const data = amateurData[selected];
-      
       document.getElementById('swingSpeed').value = data.speed;
       document.getElementById('attackAngle').value = data.attack;
       document.getElementById('clubPath').value = data.path;
       document.getElementById('faceAngle').value = data.face;
-      
       strikeX = data.strikeX;
       strikeY = data.strikeY;
-      
       updateStrikeHighlight();
       updateFlight();
     }
@@ -224,7 +223,7 @@
 
       const faceToPath = v.face - v.path;
       let spinAxis = faceToPath * 2.9;
-      spinAxis *= (v.speed / 95);           // More speed = more curve
+      spinAxis *= (v.speed / 95);
       spinAxis += (strikeX - 1) * 5.5;
       spinAxis += (strikeY - 1) * -2.5;
 

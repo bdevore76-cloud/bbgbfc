@@ -36,8 +36,7 @@
         <!-- Pro Preset -->
         <div class="mb-8">
           <label class="block text-sm mb-2">PGA / LPGA Pro Preset</label>
-          <select id="proPreset" onchange="loadProPreset()" 
-                  class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-3 text-white">
+          <select id="proPreset" onchange="loadProPreset()" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-3 text-white">
             <option value="">— Select Pro —</option>
             <option value="mcilroy">Rory McIlroy</option>
             <option value="dechambeau">Bryson DeChambeau</option>
@@ -57,22 +56,31 @@
           </select>
         </div>
 
+        <!-- Amateur Preset -->
+        <div class="mb-8">
+          <label class="block text-sm mb-2">Amateur Preset (100 mph)</label>
+          <select id="amateurPreset" onchange="loadAmateurPreset()" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-3 text-white">
+            <option value="">— Select Amateur Type —</option>
+            <option value="clubchamp">Club Champion</option>
+            <option value="slicer">Slicer</option>
+            <option value="hooker">Hooker</option>
+            <option value="duckhook">Duck Hook</option>
+          </select>
+        </div>
+
         <div class="space-y-8">
           <div>
             <label class="flex justify-between text-sm mb-2"><span>Swing Speed</span><span id="speedVal" class="accent-red font-mono">98</span> mph</label>
             <input type="range" id="swingSpeed" min="70" max="125" value="98" class="w-full slider-thumb">
           </div>
-
           <div>
             <label class="flex justify-between text-sm mb-2"><span>Angle of Attack</span><span id="attackVal" class="accent-red font-mono">-1.2</span>°</label>
             <input type="range" id="attackAngle" min="-8" max="8" value="-1.2" step="0.1" class="w-full slider-thumb">
           </div>
-
           <div>
             <label class="flex justify-between text-sm mb-2"><span>Club Path</span><span id="pathVal" class="accent-red font-mono">+2.5</span>°</label>
             <input type="range" id="clubPath" min="-8" max="8" value="2.5" step="0.1" class="w-full slider-thumb">
           </div>
-
           <div>
             <label class="flex justify-between text-sm mb-2"><span>Face Angle</span><span id="faceVal" class="accent-red font-mono">-1.0</span>°</label>
             <input type="range" id="faceAngle" min="-8" max="8" value="-1.0" step="0.1" class="w-full slider-thumb">
@@ -86,7 +94,7 @@
               <button onclick="setStrike(0,0)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="0" data-x="0">High Heel</button>
               
               <button onclick="setStrike(1,2)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="1" data-x="2">Mid Toe</button>
-              <button onclick="setStrike(1,1)" class="strike-btn bg-zinc-700 py-3 rounded-xl active" id="centerBtn" data-y="1" data-x="1">Center</button>
+              <button onclick="setStrike(1,1)" class="strike-btn bg-zinc-700 py-3 rounded-xl active" data-y="1" data-x="1">Center</button>
               <button onclick="setStrike(1,0)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="1" data-x="0">Mid Heel</button>
               
               <button onclick="setStrike(2,2)" class="strike-btn bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl" data-y="2" data-x="2">Low Toe</button>
@@ -117,14 +125,12 @@
   <script>
     const canvas = document.getElementById('flightCanvas');
     const ctx = canvas.getContext('2d');
-
     let strikeX = 1;
     let strikeY = 1;
 
     function updateStrikeHighlight() {
       const buttons = document.querySelectorAll('#strikeGrid button');
       buttons.forEach(btn => btn.classList.remove('active'));
-
       buttons.forEach(btn => {
         if (parseInt(btn.dataset.x) === strikeX && parseInt(btn.dataset.y) === strikeY) {
           btn.classList.add('active');
@@ -157,18 +163,39 @@
       "thitikul": { speed: 107, attack: -1.3, path: 1.8, face: 1.2 }
     };
 
+    const amateurData = {
+      "clubchamp": { speed: 100, attack: -1.5, path: 0.5, face: 0.0, strikeX: 1, strikeY: 1 },
+      "slicer":     { speed: 100, attack: -1.2, path: -5.0, face: 5.0,  strikeX: 1, strikeY: 1 },
+      "hooker":     { speed: 100, attack: -1.8, path: 5.0,  face: -5.0, strikeX: 1, strikeY: 1 },
+      "duckhook":   { speed: 100, attack: -2.2, path: 8.0,  face: -8.0, strikeX: 0, strikeY: 2 }   // Low Heel
+    };
+
     function loadProPreset() {
       const selected = document.getElementById('proPreset').value;
       if (!selected) return;
-
       const data = proData[selected];
       document.getElementById('swingSpeed').value = data.speed;
       document.getElementById('attackAngle').value = data.attack;
       document.getElementById('clubPath').value = data.path;
       document.getElementById('faceAngle').value = data.face;
+      strikeX = 1; strikeY = 1;
+      updateStrikeHighlight();
+      updateFlight();
+    }
+
+    function loadAmateurPreset() {
+      const selected = document.getElementById('amateurPreset').value;
+      if (!selected) return;
+      const data = amateurData[selected];
       
-      strikeX = 1;
-      strikeY = 1;
+      document.getElementById('swingSpeed').value = data.speed;
+      document.getElementById('attackAngle').value = data.attack;
+      document.getElementById('clubPath').value = data.path;
+      document.getElementById('faceAngle').value = data.face;
+      
+      strikeX = data.strikeX;
+      strikeY = data.strikeY;
+      
       updateStrikeHighlight();
       updateFlight();
     }
@@ -191,22 +218,25 @@
 
       let ballSpeed = Math.round(v.speed * smash);
       let launchAngle = Math.max(8, 12 + v.attack * 0.8);
-      let spinRate = Math.round(2800 - v.attack * 80);
+
+      let spinRate = Math.round(2600 + (v.speed - 95) * 22 - v.attack * 75);
+      spinRate = Math.max(1800, Math.min(4800, spinRate));
 
       const faceToPath = v.face - v.path;
-      let spinAxis = faceToPath * 2.8;
+      let spinAxis = faceToPath * 2.9;
+      spinAxis *= (v.speed / 95);           // More speed = more curve
       spinAxis += (strikeX - 1) * 5.5;
       spinAxis += (strikeY - 1) * -2.5;
 
       const ftpMagnitude = Math.abs(faceToPath);
-      const ftpDistanceLoss = Math.min(35, ftpMagnitude * 4.2);
+      const ftpDistanceLoss = Math.min(38, ftpMagnitude * 4.5);
 
-      let carry = Math.round(ballSpeed * 1.72 + launchAngle * 2.8 - spinRate / 130);
-      carry = Math.round(carry * (1 - strikePenalty * 0.6));
+      let carry = Math.round(ballSpeed * 1.68 + launchAngle * 3.0 - spinRate / 135);
+      carry = Math.round(carry * (1 - strikePenalty * 0.65));
       carry = Math.max(120, carry - ftpDistanceLoss);
 
-      const total = Math.round(carry * 1.09);
-      const apex = Math.round(launchAngle * 7 + v.speed / 7);
+      const total = Math.round(carry * 1.1);
+      const apex = Math.round(launchAngle * 7.5 + v.speed / 8);
       const curve = Math.round(spinAxis * 1.9);
 
       document.getElementById('speedVal').textContent = Math.round(v.speed);
@@ -220,8 +250,7 @@
       
       const curveEl = document.getElementById('curve');
       curveEl.textContent = curve >= 0 ? `+${curve}` : curve;
-      curveEl.className = curve >= 0 ? 
-        "text-4xl font-bold text-yellow-400" : "text-4xl font-bold text-blue-400";
+      curveEl.className = curve >= 0 ? "text-4xl font-bold text-yellow-400" : "text-4xl font-bold text-blue-400";
 
       drawFlightPath(carry, curve);
     }
@@ -232,7 +261,6 @@
       const startY = canvas.height - 80;
       const maxDistance = Math.max(carry * 1.12, 320);
 
-      // Distance hashmarks
       ctx.strokeStyle = '#444';
       ctx.lineWidth = 2;
       for (let dist = 25; dist <= Math.floor(maxDistance / 25) * 25; dist += 25) {
@@ -248,7 +276,6 @@
         ctx.fillText(dist + " yds", startX - 55, y + 4);
       }
 
-      // Target line
       ctx.strokeStyle = 'rgba(255,255,255,0.15)';
       ctx.setLineDash([6, 4]);
       ctx.beginPath();
@@ -257,12 +284,10 @@
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Ball flight path
       ctx.strokeStyle = '#C00000';
       ctx.lineWidth = 5;
       ctx.shadowBlur = 20;
       ctx.shadowColor = '#C00000';
-
       ctx.beginPath();
       ctx.moveTo(startX, startY);
 
@@ -293,4 +318,3 @@
   </script>
 </body>
 </html>
-
